@@ -10,8 +10,15 @@ import TodoItem from './components/todoItem';
 class App extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      todos: [
+        {id: 0, title: "Make dinner tonight!", completed: false},
+        {id: 1, title: "Fold the laundry.", completed: false},
+        {id: 2, title: "Learn to make a React app!", completed: true}
+      ],
+      nextId: 21
+    };
 
-    this.addTodo = this.addTodo.bind(this);
     this.removeTodo = this.removeTodo.bind(this);
     this.completeTodo = this.completeTodo.bind(this);
   }
@@ -30,19 +37,32 @@ class App extends Component {
   }
 
   removeTodo(id) {
-    this.setState({
-        todos: this.state.todos.filter((todo, index) => todo.id !== id)
-      });
+    // this.setState({
+    //     todos: this.state.todos.filter((todo) => todo.id !== id)
+    //   });
+    this.props.dispatch(actions.removeTodo(id));
   }
 
   completeTodo(id) {
-    let currentTodo = this.state.todos.find(todo => todo.id === id)
-    currentTodo.completed = !currentTodo.completed
+    // let currentTodo1 = this.state.todos.find(todo => todo.id === id)
+    // currentTodo1.completed = !currentTodo1.completed
 
-    this.setState({
-      ...this.state.todos,
-      currentTodo
-    });
+    // this.setState({
+    //   ...this.state.todos,
+    //   currentTodo1
+    // });
+
+    const { todos } = this.props
+
+    let currentTodo = todos.find(todo => todo.id === id),
+      newTodos = todos.filter((todo) => todo.id !== id)
+    currentTodo.completed = !currentTodo.completed
+    // newTodos = [...newTodos, currentTodo]
+    console.log(currentTodo)
+    console.log(newTodos)
+
+
+    // this.props.dispatch(actions.completeTodo(newTodos));
   }
 
   render() {
@@ -56,7 +76,8 @@ class App extends Component {
           <ul>
             {
               todos && todos.map((todo) => {
-                return <TodoItem todo={todo} key={todo.id} id={todo.id} removeTodo={this.removeTodo} completeTodo={this.completeTodo}/>
+                return <TodoItem todo={todo} key={todo.id} removeTodo={this.removeTodo} completeTodo={this.completeTodo} />
+                // return <TodoItem todo={todo} key={todo.id} />
               })
             }
           </ul>
@@ -68,9 +89,8 @@ class App extends Component {
 
 export default connect((state, props) => {
   return {
-    todos: state.todo.todos,
-    loading: state.todo.loading,
-    error: state.todo.error,
-    next: state.todo.nextId
+    todos: state.todos.todos,
+    loading: state.todos.loading,
+    error: state.todos.error
   }
 })(App);

@@ -2,6 +2,8 @@ import React from 'react';
 import './styles/todoInput.css';
 import { connect } from 'react-redux';
 
+import * as actions from '../actions/actions'
+
 class TodoInput extends React.Component {
   constructor(props) {
     super(props);
@@ -12,22 +14,30 @@ class TodoInput extends React.Component {
   }
 
   handleChange(e) {
-    this.setState({value: e.target.value});
+    // this.setState({value: e.target.value});
+    this.props.dispatch(actions.changeTodoText(e.target.value))
   }
 
-  addTodo(todo) {
+  addTodo() {
+    const { todoText, nextId } = this.props,
+      todo = { id: nextId, title: todoText, completed: false },
+      newNext = nextId + 1;
+      
     // Ensure a todo was actually entered before submitting
-    if (todo.length > 0) {
-      this.props.addTodo(todo);
-      this.setState({value: ''});
+    if (todoText.length > 0) {
+      this.props.dispatch(actions.addTodo(todo))
+      this.props.dispatch(actions.changeTodoText(''))
+      this.props.dispatch(actions.changeNextId(newNext))
     }
   }
 
   render() {
+    const { todoText } = this.props
+
     return (
       <div>
-        <input type="text" value={this.state.value} onChange={this.handleChange} />
-        <button className="btn btn-primary" onClick={() => this.addTodo(this.state.value)}>Submit</button>
+        <input type="text" value={todoText} onChange={this.handleChange} />
+        <button className="btn btn-primary" onClick={() => this.addTodo()}>Submit</button>
       </div>
     );
   }
@@ -35,6 +45,7 @@ class TodoInput extends React.Component {
 
 export default connect((state, props) => {
   return {
-    todoText: state.todo.todoText
+    todoText: state.todos.todoText,
+    nextId: state.todos.nextId
   }
 })(TodoInput)
